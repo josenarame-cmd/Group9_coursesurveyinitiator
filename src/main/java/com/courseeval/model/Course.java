@@ -1,7 +1,4 @@
-package com.courseeval.model;
 
-import java.sql.Timestamp;
-import java.util.List;
 
 // ============================================================
 // Course.java

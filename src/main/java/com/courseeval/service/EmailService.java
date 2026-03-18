@@ -1,4 +1,3 @@
-
 package com.courseeval.service;
 
 import org.slf4j.Logger;
@@ -16,25 +15,28 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    /**
-     * Send a plain-text confirmation email.
-     * Silently logs on failure so the application keeps running
-     * even when mail is not configured.
-     */
-    public void sendConfirmation(String to, String subject, String body) {
-        if (mailSender == null) {
-            log.warn("Mail sender not configured. Skipping email to {}", to);
-            return;
+    public boolean sendConfirmation(String to, String subject, String body) {
+        if (mailSender == null || to == null || !to.contains("@") || !to.contains(".")) {
+            log.warn("Invalid email or mail sender not configured.");
+            return false;
         }
+
         try {
             SimpleMailMessage msg = new SimpleMailMessage();
             msg.setTo(to);
             msg.setSubject(subject);
             msg.setText(body);
             mailSender.send(msg);
-            log.info("Confirmation email sent to {}", to);
+            log.info("Confirmation email successfully sent to {}", to);
+            return true; // EMAIL SENT SUCCESSFULLY!
+
         } catch (Exception e) {
             log.error("Failed to send email to {}: {}", to, e.getMessage());
+            System.err.println("=====================================================");
+            System.err.println("EMAIL FAILED TO SEND! Gmail rejected the connection.");
+            System.err.println("Error details: " + e.getMessage());
+            System.err.println("=====================================================");
+            return false; // EMAIL FAILED TO SEND
         }
     }
 }

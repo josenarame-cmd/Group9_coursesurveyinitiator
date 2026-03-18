@@ -10,7 +10,16 @@
         <h4>Q${st.index + 1}. ${q.questionText}</h4>
         <c:choose>
             <c:when test="${q.questionType == 'TEXT'}">
-                <p class="muted">Open-text question – individual answers not shown in aggregate view.</p>
+                <div class="text-responses">
+                    <c:forEach var="ans" items="${q.textResponses}">
+                        <div style="background:#f8f9fa; padding:10px; border-radius:4px; margin-bottom:8px; border-left:3px solid #0056b3;">
+                                ${ans}
+                        </div>
+                    </c:forEach>
+                    <c:if test="${empty q.textResponses}">
+                        <p class="muted">No text responses yet.</p>
+                    </c:if>
+                </div>
             </c:when>
             <c:otherwise>
                 <c:forEach var="o" items="${q.options}">

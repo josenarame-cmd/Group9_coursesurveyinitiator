@@ -10,7 +10,6 @@
 
 <form action="${pageContext.request.contextPath}/survey/${survey.surveyId}/submit" method="post" id="surveyForm">
 
-    <!-- Guest email field (shown if not logged in OR access type allows guests) -->
     <c:if test="${loggedUser == null}">
         <div class="card" style="margin-bottom:20px">
             <div class="form-group">
@@ -27,29 +26,31 @@
             </p>
 
             <c:choose>
-                <%-- Single choice --%>
+                <%-- Single choice (Radio Buttons) --%>
                 <c:when test="${q.questionType == 'SINGLE_CHOICE'}">
                     <div class="options-group">
                         <c:forEach var="o" items="${q.options}">
                             <label class="radio-label">
                                 <input type="radio" name="q_${q.questionId}" value="${o.optionId}" required>
-                                ${o.optionText}
+                                    ${o.optionText}
                             </label>
                         </c:forEach>
                     </div>
                 </c:when>
-                <%-- Multiple choice – NOTE: backend currently stores last selected; extend as needed --%>
+
+                <%-- Multiple choice (Checkboxes) --%>
                 <c:when test="${q.questionType == 'MULTIPLE_CHOICE'}">
                     <div class="options-group">
                         <c:forEach var="o" items="${q.options}">
-                            <label class="radio-label">
+                            <label class="checkbox-label" style="display: block; margin-bottom: 8px; cursor: pointer;">
                                 <input type="checkbox" name="q_${q.questionId}" value="${o.optionId}">
-                                ${o.optionText}
+                                    ${o.optionText}
                             </label>
                         </c:forEach>
                     </div>
                 </c:when>
-                <%-- Open text --%>
+
+                <%-- Open text (Textarea) --%>
                 <c:otherwise>
                     <textarea name="q_${q.questionId}" rows="3" class="form-control"
                               placeholder="Your answer…"></textarea>

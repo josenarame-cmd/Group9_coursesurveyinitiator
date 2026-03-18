@@ -10,6 +10,9 @@ public class SurveyQuestion {
     private int orderNum;
     private List<SurveyOption> options;
 
+    // New field to hold open-text answers
+    private List<String> textResponses;
+
     public SurveyQuestion() {}
 
     public int getQuestionId()                 { return questionId; }
@@ -29,4 +32,8 @@ public class SurveyQuestion {
 
     public List<SurveyOption> getOptions()             { return options; }
     public void setOptions(List<SurveyOption> options) { this.options = options; }
+
+    // Getters and setters for text responses
+    public List<String> getTextResponses() { return textResponses; }
+    public void setTextResponses(List<String> textResponses) { this.textResponses = textResponses; }
 }

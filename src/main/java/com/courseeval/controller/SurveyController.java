@@ -5,6 +5,7 @@ import com.courseeval.dao.SurveyDAO;
 import com.courseeval.model.*;
 import com.courseeval.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +21,17 @@ public class SurveyController {
     @Autowired private SurveyDAO surveyDAO;
     @Autowired private CourseDAO courseDAO;
     @Autowired private EmailService emailService;
+    @Autowired private JdbcTemplate jdbcTemplate; // Injected for fetching text answers safely
 
+    private User requireInitiator(HttpSession session) {
+        User u = (User) session.getAttribute("loggedUser");
+        if (u == null || !"INITIATOR".equals(u.getRoleName())) return null;
+        return u;
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        User u = (User) session.getAttribute("loggedUser");
+        User u = requireInitiator(session);
         if (u == null) return "redirect:/login";
         model.addAttribute("surveys", surveyDAO.findByCreator(u.getUserId()));
         return "initiator/dashboard";
@@ -33,6 +40,7 @@ public class SurveyController {
     // ---- Create survey ----
     @GetMapping("/surveys/new")
     public String newSurvey(HttpSession session, Model model) {
+        if (requireInitiator(session) == null) return "redirect:/login";
         model.addAttribute("survey", new Survey());
         model.addAttribute("courses", courseDAO.findAll());
         return "initiator/survey-form";
@@ -41,7 +49,7 @@ public class SurveyController {
     @PostMapping("/surveys/save")
     public String saveSurvey(@ModelAttribute Survey survey, HttpSession session,
                              RedirectAttributes ra) {
-        User u = (User) session.getAttribute("loggedUser");
+        User u = requireInitiator(session);
         if (u == null) return "redirect:/login";
         survey.setCreatedBy(u.getUserId());
         if (survey.getSurveyId() == 0) {
@@ -59,7 +67,7 @@ public class SurveyController {
     // ---- Edit survey ----
     @GetMapping("/surveys/{id}/edit")
     public String editSurvey(@PathVariable int id, HttpSession session, Model model) {
-        User u = (User) session.getAttribute("loggedUser");
+        User u = requireInitiator(session);
         if (u == null) return "redirect:/login";
         Survey survey = surveyDAO.findById(id);
         if (survey == null || survey.getCreatedBy() != u.getUserId())
@@ -72,7 +80,7 @@ public class SurveyController {
     // ---- Manage questions ----
     @GetMapping("/surveys/{id}/questions")
     public String manageQuestions(@PathVariable int id, HttpSession session, Model model) {
-        User u = (User) session.getAttribute("loggedUser");
+        User u = requireInitiator(session);
         if (u == null) return "redirect:/login";
         Survey survey = surveyDAO.findById(id);
         List<SurveyQuestion> questions = surveyDAO.findQuestionsBySurvey(id);
@@ -95,7 +103,8 @@ public class SurveyController {
         q.setQuestionType(questionType);
         int qId = surveyDAO.saveQuestion(q);
 
-        if (options != null && !"TEXT".equals(questionType)) {
+        // Fix: Make sure it saves options for MULTIPLE_CHOICE and SINGLE_CHOICE
+        if (options != null && ("SINGLE_CHOICE".equals(questionType) || "MULTIPLE_CHOICE".equals(questionType))) {
             for (int i = 0; i < options.size(); i++) {
                 if (!options.get(i).trim().isEmpty()) {
                     SurveyOption o = new SurveyOption();
@@ -118,7 +127,7 @@ public class SurveyController {
     // ---- Publish / close ----
     @PostMapping("/surveys/{id}/publish")
     public String publish(@PathVariable int id, HttpSession session, RedirectAttributes ra) {
-        User u = (User) session.getAttribute("loggedUser");
+        User u = requireInitiator(session);
         if (u == null) return "redirect:/login";
         Survey s = surveyDAO.findById(id);
         s.setStatus("PUBLISHED");
@@ -129,7 +138,7 @@ public class SurveyController {
 
     @PostMapping("/surveys/{id}/close")
     public String close(@PathVariable int id, HttpSession session, RedirectAttributes ra) {
-        User u = (User) session.getAttribute("loggedUser");
+        User u = requireInitiator(session);
         if (u == null) return "redirect:/login";
         Survey s = surveyDAO.findById(id);
         s.setStatus("CLOSED");
@@ -141,7 +150,7 @@ public class SurveyController {
     // ---- Delete survey ----
     @GetMapping("/surveys/{id}/delete")
     public String deleteSurvey(@PathVariable int id, HttpSession session, RedirectAttributes ra) {
-        User u = (User) session.getAttribute("loggedUser");
+        User u = requireInitiator(session);
         if (u == null) return "redirect:/login";
         surveyDAO.delete(id);
         ra.addFlashAttribute("success", "Survey deleted.");
@@ -151,15 +160,25 @@ public class SurveyController {
     // ---- Results ----
     @GetMapping("/surveys/{id}/results")
     public String results(@PathVariable int id, HttpSession session, Model model) {
-        if (session.getAttribute("loggedUser") == null) return "redirect:/login";
+        if (requireInitiator(session) == null) return "redirect:/login";
         Survey survey = surveyDAO.findById(id);
         List<SurveyQuestion> questions = surveyDAO.findQuestionsBySurvey(id);
+
         for (SurveyQuestion q : questions) {
-            List<SurveyOption> opts = surveyDAO.findOptionsByQuestion(q.getQuestionId());
-            for (SurveyOption o : opts) {
-                o.setResponseCount(surveyDAO.getOptionCount(o.getOptionId()));
+            if ("TEXT".equals(q.getQuestionType())) {
+                // Fetch text answers dynamically
+                List<String> texts = jdbcTemplate.queryForList(
+                        "SELECT text_answer FROM response_answers WHERE question_id = ? AND text_answer IS NOT NULL AND text_answer != ''",
+                        String.class, q.getQuestionId()
+                );
+                q.setTextResponses(texts);
+            } else {
+                List<SurveyOption> opts = surveyDAO.findOptionsByQuestion(q.getQuestionId());
+                for (SurveyOption o : opts) {
+                    o.setResponseCount(surveyDAO.getOptionCount(o.getOptionId()));
+                }
+                q.setOptions(opts);
             }
-            q.setOptions(opts);
         }
         model.addAttribute("survey", survey);
         model.addAttribute("questions", questions);

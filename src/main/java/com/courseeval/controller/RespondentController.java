@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class RespondentController {
     // ---- Submit survey ----
     @PostMapping("/{id}/submit")
     public String submitSurvey(@PathVariable int id,
-                               @RequestParam Map<String, String> params,
+                               HttpServletRequest request,
                                @RequestParam(required = false) String guestEmail,
                                HttpSession session,
                                RedirectAttributes ra) {
@@ -104,13 +105,24 @@ public class RespondentController {
         List<SurveyQuestion> questions = surveyDAO.findQuestionsBySurvey(id);
         for (SurveyQuestion q : questions) {
             String key = "q_" + q.getQuestionId();
-            String val = params.get(key);
-            if (val != null && !val.isEmpty()) {
-                if ("TEXT".equals(q.getQuestionType())) {
-                    surveyDAO.saveAnswer(responseId, q.getQuestionId(), null, val);
-                } else {
-                    surveyDAO.saveAnswer(responseId, q.getQuestionId(),
-                            Integer.parseInt(val), null);
+            if ("TEXT".equals(q.getQuestionType())) {
+                String val = request.getParameter(key);
+                if (val != null && !val.trim().isEmpty()) {
+                    surveyDAO.saveAnswer(responseId, q.getQuestionId(), null, val.trim());
+                }
+            } else if ("MULTIPLE_CHOICE".equals(q.getQuestionType())) {
+                String[] values = request.getParameterValues(key);
+                if (values != null) {
+                    for (String val : values) {
+                        if (val != null && !val.isEmpty()) {
+                            surveyDAO.saveAnswer(responseId, q.getQuestionId(), Integer.parseInt(val), null);
+                        }
+                    }
+                }
+            } else { // SINGLE_CHOICE
+                String val = request.getParameter(key);
+                if (val != null && !val.isEmpty()) {
+                    surveyDAO.saveAnswer(responseId, q.getQuestionId(), Integer.parseInt(val), null);
                 }
             }
         }

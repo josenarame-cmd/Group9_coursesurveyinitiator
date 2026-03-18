@@ -21,15 +21,10 @@ public class SurveyController {
     @Autowired private CourseDAO courseDAO;
     @Autowired private EmailService emailService;
 
-    private User requireInitiator(HttpSession session) {
-        User u = (User) session.getAttribute("loggedUser");
-        if (u == null || !"INITIATOR".equals(u.getRoleName())) return null;
-        return u;
-    }
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        User u = requireInitiator(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         model.addAttribute("surveys", surveyDAO.findByCreator(u.getUserId()));
         return "initiator/dashboard";
@@ -38,7 +33,6 @@ public class SurveyController {
     // ---- Create survey ----
     @GetMapping("/surveys/new")
     public String newSurvey(HttpSession session, Model model) {
-        if (requireInitiator(session) == null) return "redirect:/login";
         model.addAttribute("survey", new Survey());
         model.addAttribute("courses", courseDAO.findAll());
         return "initiator/survey-form";
@@ -47,7 +41,7 @@ public class SurveyController {
     @PostMapping("/surveys/save")
     public String saveSurvey(@ModelAttribute Survey survey, HttpSession session,
                              RedirectAttributes ra) {
-        User u = requireInitiator(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         survey.setCreatedBy(u.getUserId());
         if (survey.getSurveyId() == 0) {
@@ -65,7 +59,7 @@ public class SurveyController {
     // ---- Edit survey ----
     @GetMapping("/surveys/{id}/edit")
     public String editSurvey(@PathVariable int id, HttpSession session, Model model) {
-        User u = requireInitiator(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         Survey survey = surveyDAO.findById(id);
         if (survey == null || survey.getCreatedBy() != u.getUserId())
@@ -78,7 +72,7 @@ public class SurveyController {
     // ---- Manage questions ----
     @GetMapping("/surveys/{id}/questions")
     public String manageQuestions(@PathVariable int id, HttpSession session, Model model) {
-        User u = requireInitiator(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         Survey survey = surveyDAO.findById(id);
         List<SurveyQuestion> questions = surveyDAO.findQuestionsBySurvey(id);
@@ -124,7 +118,7 @@ public class SurveyController {
     // ---- Publish / close ----
     @PostMapping("/surveys/{id}/publish")
     public String publish(@PathVariable int id, HttpSession session, RedirectAttributes ra) {
-        User u = requireInitiator(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         Survey s = surveyDAO.findById(id);
         s.setStatus("PUBLISHED");
@@ -135,7 +129,7 @@ public class SurveyController {
 
     @PostMapping("/surveys/{id}/close")
     public String close(@PathVariable int id, HttpSession session, RedirectAttributes ra) {
-        User u = requireInitiator(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         Survey s = surveyDAO.findById(id);
         s.setStatus("CLOSED");
@@ -147,7 +141,7 @@ public class SurveyController {
     // ---- Delete survey ----
     @GetMapping("/surveys/{id}/delete")
     public String deleteSurvey(@PathVariable int id, HttpSession session, RedirectAttributes ra) {
-        User u = requireInitiator(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         surveyDAO.delete(id);
         ra.addFlashAttribute("success", "Survey deleted.");
@@ -157,7 +151,7 @@ public class SurveyController {
     // ---- Results ----
     @GetMapping("/surveys/{id}/results")
     public String results(@PathVariable int id, HttpSession session, Model model) {
-        if (requireInitiator(session) == null) return "redirect:/login";
+        if (session.getAttribute("loggedUser") == null) return "redirect:/login";
         Survey survey = surveyDAO.findById(id);
         List<SurveyQuestion> questions = surveyDAO.findQuestionsBySurvey(id);
         for (SurveyQuestion q : questions) {

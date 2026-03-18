@@ -21,16 +21,10 @@ public class AdminController {
     @Autowired private CourseDAO courseDAO;
     @Autowired private SurveyDAO surveyDAO;
 
-    private User requireAdmin(HttpSession session) {
-        User u = (User) session.getAttribute("loggedUser");
-        if (u == null || !"ADMIN".equals(u.getRoleName())) return null;
-        return u;
-    }
 
     // ---- Dashboard ----
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        if (requireAdmin(session) == null) return "redirect:/login";
         model.addAttribute("pendingTeachers", userDAO.findPendingTeachers());
         model.addAttribute("totalCourses", courseDAO.findAll().size());
         model.addAttribute("totalSurveys", surveyDAO.findAll().size());
@@ -40,7 +34,6 @@ public class AdminController {
     // ---- Teacher approvals ----
     @GetMapping("/teachers")
     public String teachers(HttpSession session, Model model) {
-        if (requireAdmin(session) == null) return "redirect:/login";
         model.addAttribute("teachers", userDAO.findByRole("TEACHER"));
         return "admin/teachers";
     }
@@ -62,7 +55,6 @@ public class AdminController {
     // ---- Course management ----
     @GetMapping("/courses")
     public String courses(HttpSession session, Model model) {
-        if (requireAdmin(session) == null) return "redirect:/login";
         model.addAttribute("courses", courseDAO.findAll());
         model.addAttribute("course", new Course());
         return "admin/courses";
@@ -71,8 +63,7 @@ public class AdminController {
     @PostMapping("/courses/save")
     public String saveCourse(@ModelAttribute Course course, HttpSession session,
                              RedirectAttributes ra) {
-        User admin = requireAdmin(session);
-        if (admin == null) return "redirect:/login";
+        User admin = (User) session.getAttribute("loggedUser");
         course.setCreatedBy(admin.getUserId());
         if (course.getCourseId() == 0) courseDAO.save(course);
         else courseDAO.update(course);
@@ -90,7 +81,6 @@ public class AdminController {
     // ---- Teacher assignment ----
     @GetMapping("/courses/assign/{courseId}")
     public String assignPage(@PathVariable int courseId, HttpSession session, Model model) {
-        if (requireAdmin(session) == null) return "redirect:/login";
         model.addAttribute("course", courseDAO.findById(courseId));
         model.addAttribute("allTeachers", userDAO.findByRole("TEACHER"));
         return "admin/assign-teacher";
@@ -107,15 +97,13 @@ public class AdminController {
     // ---- All surveys view ----
     @GetMapping("/surveys")
     public String surveys(HttpSession session, Model model) {
-        if (requireAdmin(session) == null) return "redirect:/login";
         model.addAttribute("surveys", surveyDAO.findAll());
         return "admin/surveys";
     }
 
-    // ---- Users management ----
     @GetMapping("/users")
     public String users(HttpSession session, Model model) {
-        if (requireAdmin(session) == null) return "redirect:/login";
+        if (session.getAttribute("loggedUser") == null) return "redirect:/login";
         model.addAttribute("users", userDAO.findAll());
         return "admin/users";
     }

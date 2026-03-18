@@ -18,15 +18,10 @@ public class TeacherController {
     @Autowired private SurveyDAO surveyDAO;
     @Autowired private CourseDAO courseDAO;
 
-    private User requireTeacher(HttpSession session) {
-        User u = (User) session.getAttribute("loggedUser");
-        if (u == null || !"TEACHER".equals(u.getRoleName())) return null;
-        return u;
-    }
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        User u = requireTeacher(session);
+        User u = (User) session.getAttribute("loggedUser");
         if (u == null) return "redirect:/login";
         model.addAttribute("surveys", surveyDAO.findByTeacher(u.getUserId()));
         model.addAttribute("courses", courseDAO.findByTeacher(u.getUserId()));

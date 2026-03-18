@@ -35,4 +35,9 @@
         <property name="maxUploadSize" value="10485760" />
     </bean>
 
+    <!-- Interceptors -->
+    <mvc:interceptors>
+        <bean class="com.courseeval.util.SecurityInterceptor" />
+    </mvc:interceptors>
+
 </beans>

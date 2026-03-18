@@ -1,0 +1,158 @@
+/* ============================================================
+   Course Evaluation System – Main Stylesheet
+   ============================================================ */
+
+/* Reset & base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    color: #2d3748;
+    background: #f7f8fc;
+    line-height: 1.6;
+}
+
+/* ---- Navbar ---- */
+.navbar {
+    background: #2b6cb0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 56px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    position: sticky; top: 0; z-index: 100;
+}
+.nav-brand { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+.nav-links { display: flex; align-items: center; gap: 20px; }
+.nav-links a { color: #bee3f8; text-decoration: none; font-size: 14px; transition: color .2s; }
+.nav-links a:hover { color: #fff; }
+.nav-user { color: #e2e8f0; font-size: 14px; }
+.btn-logout { background: rgba(255,255,255,.15); padding: 5px 14px; border-radius: 6px; color:#fff !important; }
+.btn-logout:hover { background: rgba(255,255,255,.28); }
+
+/* ---- Container ---- */
+.container { max-width: 1100px; margin: 32px auto; padding: 0 24px 60px; }
+
+/* ---- Typography ---- */
+h2 { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #1a365d; }
+h3 { font-size: 18px; font-weight: 600; margin: 24px 0 12px; color: #2c5282; }
+h4 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.muted { color: #718096; font-size: 13px; }
+
+/* ---- Alerts ---- */
+.alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+.alert-success { background: #c6f6d5; color: #276749; border-left: 4px solid #38a169; }
+.alert-error   { background: #fed7d7; color: #9b2c2c; border-left: 4px solid #e53e3e; }
+
+/* ---- Buttons ---- */
+.btn {
+    display: inline-block; padding: 8px 18px; border-radius: 7px; border: none;
+    cursor: pointer; font-size: 14px; font-weight: 500; text-decoration: none;
+    transition: filter .15s, transform .1s;
+}
+.btn:hover  { filter: brightness(1.08); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-primary   { background: #3182ce; color: #fff; }
+.btn-success   { background: #38a169; color: #fff; }
+.btn-danger    { background: #e53e3e; color: #fff; }
+.btn-warning   { background: #dd6b20; color: #fff; }
+.btn-secondary { background: #e2e8f0; color: #2d3748; }
+.btn-info      { background: #0bc5ea; color: #fff; }
+.btn-sm        { padding: 4px 12px; font-size: 12px; }
+.btn-block     { display: block; width: 100%; text-align: center; }
+
+/* ---- Card ---- */
+.card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+/* ---- Forms ---- */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #4a5568; }
+.form-row   { display: flex; gap: 20px; flex-wrap: wrap; }
+.form-row .form-group { flex: 1; min-width: 180px; }
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select,
+textarea,
+.form-control {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid #cbd5e0; border-radius: 7px;
+    font-size: 14px; color: #2d3748;
+    background: #fff; transition: border-color .2s;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none; border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49,130,206,.15);
+}
+.option-input { width: 100%; margin-bottom: 8px; padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; }
+
+/* ---- Table ---- */
+.table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.07); margin-bottom: 24px; }
+.table thead tr { background: #2b6cb0; color: #fff; }
+.table th { padding: 12px 16px; font-size: 13px; font-weight: 600; text-align: left; }
+.table td { padding: 11px 16px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+.table tbody tr:hover { background: #ebf8ff; }
+.table tbody tr:last-child td { border-bottom: none; }
+
+/* ---- Badge ---- */
+.badge { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 11px; font-weight: 600; background: #e2e8f0; color: #4a5568; }
+.badge-success  { background: #c6f6d5; color: #276749; }
+.badge-warning  { background: #fefcbf; color: #744210; }
+.badge-danger   { background: #fed7d7; color: #9b2c2c; }
+.badge-secondary{ background: #e2e8f0; color: #4a5568; }
+
+/* ---- Stats grid ---- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: #fff; border-radius: 10px; padding: 24px; text-align: center; box-shadow: 0 1px 6px rgba(0,0,0,.08); border-top: 4px solid #3182ce; }
+.stat-card h3 { font-size: 36px; color: #3182ce; margin: 0 0 6px; }
+.stat-card p  { font-size: 13px; color: #718096; margin: 0; }
+
+/* ---- Survey grid (respondent) ---- */
+.survey-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.survey-card { background: #fff; border-radius: 10px; padding: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.08); border-left: 5px solid #3182ce; }
+.survey-card h3 { font-size: 16px; margin-bottom: 8px; }
+.survey-meta { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+
+/* ---- Question cards ---- */
+.question-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 5px rgba(0,0,0,.07); }
+.question-header { display: flex; align-items: center; gap: 10px; }
+.q-num { background: #3182ce; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.question-text { font-weight: 500; margin-bottom: 14px; }
+.options-list { padding-left: 24px; margin-top: 10px; }
+.options-list li { margin-bottom: 4px; font-size: 14px; }
+.options-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-label { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 7px; transition: background .15s; }
+.radio-label:hover { background: #ebf8ff; }
+
+/* ---- Results ---- */
+.result-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 5px rgba(0,0,0,.07); }
+.result-row  { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.option-label { width: 200px; font-size: 13px; flex-shrink: 0; }
+.progress-bar-wrap { flex: 1; background: #e2e8f0; border-radius: 20px; height: 14px; overflow: hidden; }
+.progress-bar { height: 100%; background: #3182ce; border-radius: 20px; transition: width .4s ease; min-width: 4px; }
+.result-count { width: 80px; font-size: 13px; color: #4a5568; text-align: right; flex-shrink: 0; }
+
+/* ---- Auth page ---- */
+body.auth-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #2b6cb0 0%, #1a365d 100%); }
+.auth-card { background: #fff; border-radius: 14px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+.auth-card h1 { text-align: center; font-size: 22px; color: #2b6cb0; margin-bottom: 6px; }
+.auth-card h2 { text-align: center; font-size: 18px; margin-bottom: 24px; color: #4a5568; }
+.auth-links   { text-align: center; margin-top: 18px; font-size: 13px; }
+.auth-links a { color: #3182ce; text-decoration: none; }
+
+/* ---- Footer ---- */
+.footer { text-align: center; padding: 24px; font-size: 13px; color: #a0aec0; border-top: 1px solid #e2e8f0; margin-top: 40px; }
+
+/* ---- Empty state ---- */
+.empty-state { text-align: center; padding: 60px 20px; color: #a0aec0; font-size: 16px; }
